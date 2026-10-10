@@ -1,0 +1,23 @@
+{
+    "name": "Game.App",
+    "rootNamespace": "Game.App",
+    "references": [
+        "Game.Core",
+        "Game.Sim",
+        "Game.Presentation",
+        "Game.Network",
+        "Game.UI",
+        "Game.Proto",
+        "Unity.Entities",
+        "Unity.Collections"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,24 @@
+{
+    "name": "Game.App.Editor",
+    "rootNamespace": "Game.App.Editor",
+    "references": [
+        "Game.App",
+        "Game.Core",
+        "Game.Network",
+        "Game.UI",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "Unity.Addressables.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
