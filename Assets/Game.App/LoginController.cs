@@ -125,7 +125,8 @@ namespace Game.App
 
         /// <summary>
         /// WS 认证成功 → 拉取配置（gamedata 需 token）→ 探测未完成战斗。
-        /// 配置加载失败短暂重试（3 次）后仍进大厅（战斗场景才依赖技能表）。
+        /// 配置加载重试 3 次；仍失败则显式报错并停在登录页（C4：静默进大厅会造成
+        /// 战斗场景"技能按钮可点但查无技能"的降级体验，必须让用户看见并重试）。
         /// </summary>
         private async void OnWsAuthenticated()
         {
@@ -139,6 +140,13 @@ namespace Game.App
                 {
                     await System.Threading.Tasks.Task.Delay(1500);
                 }
+            }
+
+            if (!gameData.IsLoaded || gameData.Skills.Count == 0)
+            {
+                Debug.LogError("[Login] gamedata load failed after retries; refusing to enter lobby (C4)");
+                _view.SetStatus("Config load failed - please relogin or check server", true);
+                return;
             }
 
             Debug.Log($"[Login] configs loaded={gameData.IsLoaded} skills={gameData.Skills.Count} templates={gameData.Templates.Count}");
