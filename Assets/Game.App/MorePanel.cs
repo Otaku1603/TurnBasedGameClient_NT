@@ -42,22 +42,41 @@ namespace Game.App
         private Vector2 _scroll;
         private bool _loading;
 
+        // CL2：服务端推送徽标 —— MAIL_NOTIFY / ANNOUNCEMENT_PUSH 到达即点亮 MORE 按钮，
+        // 面板打开后清除（正式红点体系随 FairyGUI 迁移落地）
+        private bool _mailBadge;
+        private bool _announceBadge;
+
+        /// <summary>常驻实例（GameEntry 订阅推送时回调用）。</summary>
+        public static MorePanel Instance { get; private set; }
+
         public static void Attach(GameObject host)
         {
-            host.AddComponent<MorePanel>();
+            Instance = host.AddComponent<MorePanel>();
         }
+
+        /// <summary>MAIL_NOTIFY 推送到达：点亮徽标。</summary>
+        public void NotifyMail() => _mailBadge = true;
+
+        /// <summary>ANNOUNCEMENT_PUSH 推送到达：点亮徽标。</summary>
+        public void NotifyAnnouncement() => _announceBadge = true;
+
+        private bool HasBadge() => _mailBadge || _announceBadge;
 
         private RestClient Rest => GameEntry.Instance.Rest;
 
         private void OnGUI()
         {
-            // 右上角（避开场景里左上角的 DevSettings 按钮）
+            // 右上角（避开场景里左上角的 DevSettings 按钮）；有未读推送时点亮 ● 徽标
             GUILayout.BeginArea(new Rect(Screen.width - 100, 6, 96, 30));
-            if (GUILayout.Button(_open ? "MORE ▲" : "MORE ▼", GUILayout.Width(90), GUILayout.Height(24)))
+            string moreLabel = _open ? "MORE ▲" : (HasBadge() ? "MORE ●" : "MORE ▼");
+            if (GUILayout.Button(moreLabel, GUILayout.Width(90), GUILayout.Height(24)))
             {
                 _open = !_open;
                 if (_open)
                 {
+                    _mailBadge = false;
+                    _announceBadge = false;
                     _ = RefreshCurrentTab();
                 }
             }

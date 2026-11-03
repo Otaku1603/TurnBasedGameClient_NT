@@ -17,7 +17,9 @@ namespace Game.Tests.EditMode
     /// </summary>
     public class M2BattleFlowSmokeTests
     {
-        private const string ServerHost = "10.244.216.57";
+        // M11：目标主机默认本机，可用环境变量 TBG_TEST_HOST 指定集群地址；服务不可达时照旧 skip
+        private static string ServerHost =>
+            System.Environment.GetEnvironmentVariable("TBG_TEST_HOST") ?? "127.0.0.1";
 
         [UnityTest]
         public IEnumerator RealServer_TwoPlayerFullBattle()

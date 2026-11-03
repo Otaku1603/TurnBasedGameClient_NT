@@ -89,6 +89,27 @@ namespace Game.App
                     Debug.Log($"[Social] 好友申请：{p.FromName} (ID:{p.FromId}) —— MORE → FrReq 审批");
                 }
             });
+
+            // CL2：邮件/公告实时提醒 → MORE 按钮红点徽标（面板打开自动刷新）
+            var more = MorePanel.Instance;
+            if (more != null)
+            {
+                PushBus.Subscribe(GameClient.Proto.MessageType.MailNotify, msg =>
+                {
+                    int unread = msg.MailNotify?.UnreadCount ?? 0;
+                    Debug.Log($"[Mail] MAIL_NOTIFY 未读 {unread} —— MORE → Mail 查看");
+                    more.NotifyMail();
+                });
+                PushBus.Subscribe(GameClient.Proto.MessageType.AnnouncementPush, msg =>
+                {
+                    var a = msg.AnnouncementPush;
+                    if (a != null)
+                    {
+                        Debug.Log($"[Announcement] {a.Title}：{a.Content}");
+                    }
+                    more.NotifyAnnouncement();
+                });
+            }
         }
 
         private void Update()
@@ -111,11 +132,8 @@ namespace Game.App
                 return;
             }
 
+            // L2：只走 Shutdown()，不再逐个重复 Dispose（组件自会在各自的 Dispose 幂等清理）
             Shutdown();
-            ConnState?.Dispose();
-            Battles?.Dispose();
-            Recovery?.Dispose();
-            Connection?.Dispose();
             Instance = null;
         }
     }

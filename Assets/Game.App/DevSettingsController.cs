@@ -95,6 +95,7 @@ namespace Game.App
             }
         }
 
-        private const string DefaultHost = "10.244.216.57";
+        // M11：默认本地占位；开发期连真实集群在 DevSettings 面板输入即可
+        private const string DefaultHost = "127.0.0.1";
     }
 }

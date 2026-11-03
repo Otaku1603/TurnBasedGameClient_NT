@@ -59,6 +59,15 @@ namespace Game.App
             };
             _battles.CurrentBattle = start;
             Debug.Log($"[Recovery] battle recovered: {resp.BattleId} round={resp.CurrentRound}");
+            // C5：断线期间客户端可能已退回大厅场景 —— 恢复盘面后自动进战斗场景，
+            // BattleController.Start 会用已恢复的 CurrentBattle 直接初始化，无需手动操作
+            var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (active != "BattleScene")
+            {
+                Debug.Log("[Recovery] returning to BattleScene automatically");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("BattleScene");
+                return;
+            }
             BattleRecovered?.Invoke(start);
         }
 

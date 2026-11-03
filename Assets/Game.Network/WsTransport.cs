@@ -21,8 +21,8 @@ namespace Game.Network
         private ClientWebSocket _ws;
         private CancellationTokenSource _cts;
         private volatile bool _running;
-        /** Closed 事件只发一次（Close/ReceiveLoop/send 失败多条路径汇聚到 NotifyClosed）。 */
-        private bool _closedNotified;
+        /** Closed 事件只发一次（L1：Interlocked 原子抢占，防多线程双触发）。 */
+        private int _closedNotified;
 
         /// <summary>连接已建立（可能在后台线程触发，订阅方须线程安全）。</summary>
         public event Action Opened;
@@ -35,7 +35,7 @@ namespace Game.Network
         public async Task ConnectAsync(string url)
         {
             DisposeSocket();
-            _closedNotified = false;
+            Interlocked.Exchange(ref _closedNotified, 0);
             _cts = new CancellationTokenSource();
             _ws = new ClientWebSocket();
 
@@ -169,9 +169,10 @@ namespace Game.Network
             }
 
             _running = false;
-            if (!_closedNotified)
+            // L1：Close/ReceiveLoop/send 失败可能从不同线程汇聚到此处，
+            // CompareExchange 保证只有一条路径真正触发 Closed 事件
+            if (Interlocked.CompareExchange(ref _closedNotified, 1, 0) == 0)
             {
-                _closedNotified = true;
                 UnityEngine.Debug.Log($"[WsTransport#{GetHashCode():x8}] closed: {reason}");
                 Closed?.Invoke(reason);
             }
